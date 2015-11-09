@@ -1,0 +1,124 @@
+
+Reference models.py example below:
+
+import datetime
+from django.db import models
+from django.utils import timezone
+
+# Create your models here.
+
+class Question(models.Model): #The question being asked. Also, the table name --> <appName>_<classNameInLowerCase> = polls_questionz.
+	# question_text & pub_date are the column names
+	question_text = models.CharField(max_length=200)
+	pub_date = models.DateTimeField('date published')
+	def __str__(self):
+		return self.question_text
+	def was_published_recently(self):
+		return self.pub_date >= timezone.now() - datetime.timedelta(days=1)
+
+class Choice(models.Model): # The answers being given and vote tally. Also, the table name --> <appName>_<classNameInLowerCase> = polls_choicez.
+	question = models.ForeignKey(Question)
+	# choice_text & votes are column names
+	choice_text = models.CharField(max_length=200)
+	votes = models.IntegerField(default=0)
+	def __str__(self):
+		return self.choice_text
+	
+# 4/22 stopped at "Wait a minute. <Question: Question object> is, utterly, an unhelpful representation of this object. Let’s fix that by editing "
+
+we need to create the tables in the database before we can use them. To do that, run the following command:
+
+$ python manage.py migrate
+
+The migrate command looks at the INSTALLED_APPS setting and creates any necessary database tables according to the database settings in your mysite/settings.py file and the database migrations shipped with the app (well cover those later).
+
+$ python manage.py makemigrations polls
+
+By running makemigrations, youre telling Django that youve made some changes to your models (in this case, youve made new ones) and that youd like the changes to be stored as a migration.
+
+Now, run migrate again to create those model tables in your database:
+
+$ python manage.py migrate
+
+sqlite> .tables
+auth_group                  django_admin_log
+auth_group_permissions      django_content_type
+auth_permission             django_migrations
+auth_user                   django_session
+auth_user_groups            polls_choice
+auth_user_user_permissions  polls_question
+sqlite> .mode column
+sqlite> .headers on
+sqlite> SELECT * FROM polls_choice;
+id          choice_text  votes       question_id
+----------  -----------  ----------  -----------
+1           Not much     0           3
+2           The sky      0           3
+sqlite> SELECT * FROM polls_question;
+id          question_text  pub_date
+----------  -------------  --------------------------
+3           What's up?     2015-04-23 04:55:27.483392
+
+AFTER RENAMING class Question/Choice to Questionz/Choicez
+
+$ python manage.py makemigrations polls
+Did you rename the polls.Question model to Questionz? [y/N
+Migrations for 'polls':
+  0002_auto_20151024_2308.py:
+    - Create model Choicez
+    - Rename model Question to Questionz
+    - Remove field question from choice
+    - Delete model Choice
+    - Add field question to choicez
+
+hernaj4@HERNAJ4-PC /c/django tutorial/mysite
+$ python manage.py migrate
+Operations to perform:
+  Apply all migrations: contenttypes, auth, admin, polls,
+Running migrations:
+  Applying polls.0002_auto_20151024_2308... OK
+The following content types are stale and need to be delet
+
+    polls | choice
+    polls | question
+
+Any objects related to these content types by a foreign ke
+be deleted. Are you sure you want to delete these content
+If you're unsure, answer 'no'.
+
+    Type 'yes' to continue, or 'no' to cancel: yes
+
+hernaj4@HERNAJ4-PC /c/django tutorial/mysite
+$ ls
+db.sqlite3  manage.py  mysite  polls  sqlite notes.txt  sq
+
+hernaj4@HERNAJ4-PC /c/django tutorial/mysite
+$ sqlite3.exe db.sqlite3
+SQLite version 3.8.5 2014-06-04 14:06:34
+Enter ".help" for usage hints.
+sqlite> .tables
+auth_group                  django_admin_log
+auth_group_permissions      django_content_type
+auth_permission             django_migrations
+auth_user                   django_session
+auth_user_groups            polls_choicez
+auth_user_user_permissions  polls_questionz
+sqlite> .mode column
+sqlite> .headers on
+sqlite> SELECT * FROM polls*
+   ...> ;
+Error: near "*": syntax error
+sqlite> SELECT * FROM polls_choicez
+   ...> ;
+sqlite> SELECT * FROM polls_questionz
+   ...> ;
+id          question_text  pub_date
+----------  -------------  --------------------------
+3           What's up?     2015-04-23 04:55:27.483392
+sqlite> .tables
+auth_group                  django_admin_log
+auth_group_permissions      django_content_type
+auth_permission             django_migrations
+auth_user                   django_session
+auth_user_groups            polls_choicez
+auth_user_user_permissions  polls_questionz
