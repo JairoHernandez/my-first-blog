@@ -7,16 +7,13 @@
             <h1><a href="">Django Girls by Jairo Blog</a></h1>
         </div>
 
-        <div>
-            <p>published: 14.06.2014, 12:14</p>
-            <h2><a href="">My first post</a></h2>
-            <p>Lo que salga1.</p>
-        </div>
-
-        <div>
-            <p>published: 14.06.2014, 12:14</p>
-            <h2><a href="">My second post</a></h2>
-            <p>Lo que salga2.</p>
-        </div>
+        {% for post in posts %}
+            <div>
+                <p>published: {{ post.published_date }}</p>
+                <h1><a href="">{{ post.title }}</a>
+                <p>{{ post.text | linebreaks }}</p>
+            </div>
+        {% endfor %}
+        
     </body>
 </html>
